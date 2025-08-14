@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: postgres
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: postgresql
+    targetRevision: 15.*            # 鎖一個大版本即可；需要可換精準版本
+    helm:
+      releaseName: postgres
+      values: |
+        architecture: standalone     # 要主從可設 replication
+        primary:
+          persistence:
+            enabled: true
+            storageClass: gp3
+            size: 20Gi
+        auth:
+          postgresPassword: "@a123456"
+        service:
+          type: ClusterIP
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: db
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true

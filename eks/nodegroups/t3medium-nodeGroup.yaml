@@ -1,0 +1,32 @@
+#eksctl create nodegroup -f t3medium-nodeGroup.yaml
+#檢查區域
+#kubectl get nodes -L topology.kubernetes.io/zone
+#檢查上限Pods
+#kubectl get nodes -o custom-columns=NAME:.metadata.name,PODS:.status.allocatable.pods
+
+
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: 2025-eks-cluster
+  region: ap-east-2
+
+nodeGroups:
+  - name: 2025-eks-nodegroup-medium     # 新 NodeGroup 名稱（不要跟舊的重複）
+    instanceType: t3.medium             # 換成 t3.medium（2 vCPU / 4 GiB RAM）
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 4                           # 可依需求設上限
+    volumeSize: 20
+    maxPodsPerNode: 35                   # 提升 Pod 上限
+    ssh:
+      allow: true
+      publicKeyName: 2025-eks-lab-key
+    iam:
+      instanceRoleARN: arn:aws:iam::085980781371:role/2025-eks-node
+    labels:
+      nodegroup: medium
+    # 如果要限制單一 AZ，可以加：
+    subnets:
+      - subnet-02ae116a0e9a15c9c               # ap-east-2a
+      - subnet-079726040878f5b97               # ap-east-2b

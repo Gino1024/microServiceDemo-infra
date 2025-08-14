@@ -1,0 +1,75 @@
+apiVersion: eksctl.io/v1alpha5        # eksctl 設定檔版本，目前通用的是 v1alpha5
+kind: ClusterConfig                   # 此檔案用來描述一個 EKS 叢集
+
+metadata:
+  name: 2025-eks-cluster              # 叢集名稱（會用在 EKS 與相關資源命名）
+  region: ap-east-2                   # 叢集所在區域；必須與 VPC / Subnets 完全一致（這裡用香港）
+  version: "1.33"                     # 要建立的 Kubernetes 版本
+  tags:                               # 會貼到叢集與由 eksctl 建立的相關資源上（便於成本/環境分類）
+    project: 2025-eks-lab
+    environment: dev
+
+vpc:
+  id: vpc-064422b9e0ab09c12           # 既有 VPC ID（使用自帶 VPC；若不填，eksctl 可自建）
+  subnets:                            # 明確指定要用哪些子網
+    public:                           # 公有子網（通常給具有公網 IP 的節點或 LB 使用）
+      ap-east-2a:                     # 可用區代號要符合 region（ap-east-2a/b/c）
+        id: subnet-02ae116a0e9a15c9c  # 子網 ID（在該 AZ 內）
+      ap-east-2b:
+        id: subnet-079726040878f5b97
+      ap-east-2c:
+        id: subnet-0342605c7f061dd7b
+  # 也可以加上 private 子網（生產建議節點放 private）：
+  #  private:
+  #    ap-east-2a:
+  #      id: <your-private-subnet-id-a>
+  #    ap-east-2b:
+  #      id: <your-private-subnet-id-b>
+  #    ap-east-2c:
+  #      id: <your-private-subnet-id-c>
+  #
+  # 小提醒：
+  # - 若使用 private 子網，請確認有 NAT Gateway 才能讓節點/Pod 出網。
+  # - EKS 控制面與節點跨 AZ 是高可用的核心。
+
+iam:
+  serviceRoleARN: arn:aws:iam::085980781371:role/2025-eks-cluster
+  # ↑ 叢集控制面的 IAM 角色（可選）。若省略，eksctl 會代建合適的角色與策略。
+  #   若自訂此角色，至少需含：
+  #   - AmazonEKSClusterPolicy
+  #   - AmazonEKSServicePolicy
+  withOIDC: true
+  # ↑ 開啟 OIDC 提供者（IRSA）。這是讓「Pod 綁定最小必要權限」的關鍵做法（強烈建議開）
+
+nodeGroups:                           # 使用 EC2 節點組（另可用 managedNodeGroups）
+  - name: 2025-eks-nodegroup          # 節點組名稱
+    instanceType: t3.small            # 節點機型（測試 OK；生產依需求換成 c*/m*/r*/graviton）
+    desiredCapacity: 2                # 期望節點數
+    minSize: 2                        # 自動縮放下限（若不打算自動縮放，可與 max 設相同）
+    maxSize: 2                        # 自動縮放上限
+    volumeSize: 20                    # 節點根磁碟大小（GiB）
+    # availabilityZones:              # 可選：限制此 nodegroup 僅在特定 AZ 建立
+    #   - ap-east-2a
+    #   - ap-east-2b
+    #   - ap-east-2c
+    ssh:
+      allow: true                     # 允許以 SSH 登入節點（生產通常關閉，或只限跳板機/特定 IP）
+      publicKeyName: 2025-eks-lab-key # EC2 Key Pair 名稱
+      # sourceSecurityGroupIds: []    # 可選：限制 SSH 來源 SG；或用 allow: true + 管好 SG
+    iam:
+      instanceRoleARN: arn:aws:iam::085980781371:role/2025-eks-node
+      # ↑ 節點的 Instance Profile 角色；需最少：
+      #   - AmazonEKSWorkerNodePolicy
+      #   - AmazonEKS_CNI_Policy
+      #   - AmazonEC2ContainerRegistryReadOnly
+      # （若節點需要存取其他 AWS 服務，建議改用 IRSA 給 Pod 權限而非加大 Node Role）
+    # labels:                         # 可選：給節點貼標（供排程/選擇器使用）
+    #   nodegroup: primary
+    # taints:                         # 可選：給節點加污點，控制哪些 Pod 可排到此類節點
+    #   - key=value:NoSchedule
+    # amiFamily: Bottlerocket         # 可選：指定 AMI 家族（AmazonLinux2 / Bottlerocket 等）
+    # capacityType: SPOT              # 可選：使用 SPOT 節省成本（測試/非關鍵可考慮）
+    # privateNetworking: true         # 可選：節點僅私網（搭配 private 子網）
+    # maxPodsPerNode: 110             # 可選：調整每節點 Pod 上限（預設由 CNI/機型決定）
+    # tags:                           # 可選：對此 nodegroup 建立的 EC2/NIC 等資源貼標
+    #   team: sre
