@@ -1,0 +1,26 @@
+{{- if and .Values.ingress.enabled (eq .Values.ingress.className "nginx") }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "userapi.fullname" . }}
+  annotations:
+    #kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+spec:
+  ingressClassName: {{ .Values.ingress.className | default "alb" | quote }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "userapi.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+        {{- end }}
+  {{- end }}
+{{- end }}

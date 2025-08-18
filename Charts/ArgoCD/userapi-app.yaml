@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: userapi
+  namespace: argocd
+  annotations:
+    # Image Updater (optional): update Helm values in Git by semver
+    argocd-image-updater.argoproj.io/image-list: user=123456789012.dkr.ecr.ap-east-2.amazonaws.com/userapi:~1
+    argocd-image-updater.argoproj.io/user.helm.image-name: image.repository
+    argocd-image-updater.argoproj.io/user.helm.image-tag: image.tag
+    argocd-image-updater.argoproj.io/write-back-method: git
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/your-gitops-repo.git
+    targetRevision: main
+    path: apps/userapi
+    helm:
+      releaseName: userapi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: apps
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

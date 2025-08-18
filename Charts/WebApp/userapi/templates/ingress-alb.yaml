@@ -1,0 +1,28 @@
+{{- if and .Values.ingress.enabled (eq .Values.ingress.className "alb") }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "userapi.fullname" . }}
+  annotations:
+    alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.alb.scheme | default "internal" }}
+    alb.ingress.kubernetes.io/target-type: {{ .Values.ingress.alb.targetType | default "ip" }}
+    alb.ingress.kubernetes.io/listen-ports: {{ .Values.ingress.alb.listenPorts | quote }}
+    alb.ingress.kubernetes.io/backend-protocol-version: {{ .Values.ingress.alb.backendProtocolVersion | default "HTTP2" }}
+spec:
+  ingressClassName: {{ .Values.ingress.className | default "alb" | quote }}
+  rules:
+  {{- range .Values.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "userapi.fullname" $ }}
+                port:
+                  number: {{ $.Values.service.port }}
+        {{- end }}
+  {{- end }}
+{{- end }}
