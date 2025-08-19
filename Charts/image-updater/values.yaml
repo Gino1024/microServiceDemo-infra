@@ -12,8 +12,11 @@ logLevel: info
 # 指向 Argo CD（用 cluster 內部位址）
 config:
   argocd:
-    serverAddress: "argocd-server:80"  # 叢內服務名稱
-    insecure: false                     # 叢內可關閉 TLS；若對外請改成 https + token
+    serverAddress: "argocd-server:80"
+    insecure: true
+    authTokenSecret:
+      name: argocd-image-updater-token   # 這個 Secret 需含 'token'
+      key: token
   registries:
     # 讓 Updater 支援 ECR（兩種做法擇一，建議 IRSA → 見下節）
     - name: "aws-ecr"
