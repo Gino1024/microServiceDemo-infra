@@ -34,7 +34,7 @@ env:
   - name: GrpcService__0__Name
     value: "User"
   - name: GrpcService__0__Url
-    value: "http://userapi-userapi.webapp.svc.cluster.local:8080"
+    value: "userapi-userapi.webapp.svc.cluster.local:8080"
 
 autoscaling:
   enabled: true
