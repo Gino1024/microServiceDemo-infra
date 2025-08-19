@@ -26,14 +26,13 @@ resources:
     cpu: "500m"
     memory: "512Mi"
 
-env: [
-  [ 
-    { name: ConnectionStrings__DefaultConnection, 
-      value: Host=postgres-postgresql.db.svc.cluster.local;Port=5432;Database=MicroService;Username=gino;Password=@a123456 }, { name: GrpcService__0__Name, value: "User" }
-    ,
-    { name: GrpcService__0__Url, 
-      value: "http://userapi.apps.svc.cluster.local:8080" } ] # e.g. [{ name: ASPNETCORE_ENVIRONMENT, value: Production }]
-]  # e.g. [{ name: ASPNETCORE_ENVIRONMENT, value: Production }]
+env:
+  - name: ConnectionStrings__DefaultConnection
+    value: "Host=postgres-postgresql.db.svc.cluster.local;Port=5432;Database=MicroService;Username=gino;Password=@a123456"
+  - name: GrpcService__0__Name
+    value: "User"
+  - name: GrpcService__0__Url
+    value: "http://userapi.apps.svc.cluster.local:8080"
 
 autoscaling:
   enabled: true
