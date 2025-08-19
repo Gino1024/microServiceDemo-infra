@@ -6,7 +6,7 @@ image:
   tag: "sha-d8479f843a3d6e9f316fca485f5cdcfa1a162955"               # managed by Image Updater (semver)
   pullPolicy: IfNotPresent
 
-replicaCount: 2
+replicaCount: 1
 
 service:
   type: ClusterIP
@@ -36,8 +36,8 @@ env:
 
 autoscaling:
   enabled: true
-  minReplicas: 2
-  maxReplicas: 5
+  minReplicas: 1
+  maxReplicas: 1
   targetCPUUtilizationPercentage: 70
   # targetMemoryUtilizationPercentage: 80
 
