@@ -1,20 +1,23 @@
+nameOverride: ""
+fullnameOverride: ""
+
 image:
-  repository: 123456789012.dkr.ecr.ap-east-2.amazonaws.com/userapi
-  tag: "1.0.0"                # managed by Image Updater (semver)
+  repository: 085980781371.dkr.ecr.ap-east-2.amazonaws.com/userapi
+  tag: "latest"                # managed by Image Updater (semver)
   pullPolicy: IfNotPresent
 
 replicaCount: 2
 
 service:
   type: ClusterIP
-  port: 50051
-  targetPort: 50051
+  port: 8080
+  targetPort: 8080
   name: grpc     # important for some ingress controllers
 
 # gRPC health probes (K8s >= 1.24)
 probes:
   grpc:
-    port: 50051
+    port: 8080
     service: ""       # optional, defaults to container port
 
 resources:
@@ -25,19 +28,13 @@ resources:
     cpu: "500m"
     memory: "512Mi"
 
-env: [
-        { name: ConnectionStrings__DefaultConnection,
-          value: "Host=postgres-postgresql.db.svc.cluster.local;Port=5432;Database=MicroService;Username=gino;Password=@a123456"
-        },
-        {
-          name: GrpcService__0__Name,
-          value: "User"
-        },
-        {
-          name: GrpcService__0__Url,
-          value: "http://userapi.apps.svc.cluster.local:8080"
-        }
-      ]  
+env:
+  - name: ConnectionStrings__DefaultConnection
+    value: "Host=postgres-postgresql.db.svc.cluster.local;Port=5432;Database=MicroService;Username=gino;Password=@a123456"
+  - name: GrpcService__0__Name
+    value: "User"
+  - name: GrpcService__0__Url
+    value: "http://userapi.apps.svc.cluster.local:8080"
 
 autoscaling:
   enabled: true
@@ -49,7 +46,7 @@ ingress:
   enabled: true
   className: alb    # or "nginx"
   hosts:
-    - host: userapi.internal.example.com
+    - host: ""
       paths:
         - path: /
           pathType: Prefix

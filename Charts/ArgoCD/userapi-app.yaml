@@ -5,16 +5,19 @@ metadata:
   namespace: argocd
   annotations:
     # Image Updater (optional): update Helm values in Git by semver
-    argocd-image-updater.argoproj.io/image-list: user=123456789012.dkr.ecr.ap-east-2.amazonaws.com/userapi:~1
+    argocd-image-updater.argoproj.io/image-list: apigw=085980781371.dkr.ecr.ap-east-2.amazonaws.com/userapi
+    argocd-image-updater.argoproj.io/apigw.allow-tags: 'regexp:^sha-[0-9a-f]{40}$'
     argocd-image-updater.argoproj.io/user.helm.image-name: image.repository
     argocd-image-updater.argoproj.io/user.helm.image-tag: image.tag
     argocd-image-updater.argoproj.io/write-back-method: git
+    argocd-image-updater.argoproj.io/apigw.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/apigw.pull-secret: ext:/scripts/ecr-login.sh
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/your-gitops-repo.git
+    repoURL: https://github.com/Gino1024/microServiceDemo-infra.git
     targetRevision: main
-    path: apps/userapi
+    path: Charts/WebApp/userapi
     helm:
       releaseName: userapi
   destination:

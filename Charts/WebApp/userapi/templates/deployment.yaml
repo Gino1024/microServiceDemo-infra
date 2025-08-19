@@ -24,15 +24,5 @@ spec:
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               name: grpc
-          readinessProbe:
-            grpc:
-              port: {{ .Values.probes.grpc.port }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            grpc:
-              port: {{ .Values.probes.grpc.port }}
-            initialDelaySeconds: 10
-            periodSeconds: 20
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

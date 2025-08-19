@@ -8,11 +8,9 @@ metadata:
     #   （你可用 latest、semver、或單純任何新 tag）
     argocd-image-updater.argoproj.io/image-list: |
       apigw=085980781371.dkr.ecr.ap-east-2.amazonaws.com/apigateway
-
     # ② 把該別名映射到 Helm values 的鍵
     argocd-image-updater.argoproj.io/apigw.helm.image-name: image.repository
     argocd-image-updater.argoproj.io/apigw.helm.image-tag: image.tag
-
     # ③ 回寫方式（若不想用預設）
     #    - git：回寫到 repo（純 GitOps）
     #    - argocd：覆寫參數（快上線）
