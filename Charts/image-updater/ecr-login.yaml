@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-image-updater-authscripts
+  namespace: argocd
+data:
+  ecr-login.sh: |
+    #!/usr/bin/env sh
+    set -e
+    echo "AWS:$(aws ecr get-login-password --region ap-east-2)"

@@ -16,13 +16,15 @@ metadata:
     # ③ 回寫方式（若不想用預設）
     #    - git：回寫到 repo（純 GitOps）
     #    - argocd：覆寫參數（快上線）
-    argocd-image-updater.argoproj.io/write-back-method: argocd
+    argocd-image-updater.argoproj.io/write-back-method: git
 
     # ④ 更新策略（擇一）
     #    - latest：只要有更新就跟（tag 不必是 semver）
     #    - semver：依符合的版本範圍
     #    - digest：鎖 digest
-    argocd-image-updater.argoproj.io/apigw.update-strategy: latest
+    argocd-image-updater.argoproj.io/apigw.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/apigw.pull-secret: ext:/scripts/ecr-login.sh
+
 
     # ⑤（選）掃描頻率、允許的 tag 篩選
     argocd-image-updater.argoproj.io/apigw.allow-tags: 'regexp:^sha-[0-9a-f]{40}$'
