@@ -1,0 +1,39 @@
+# 建一個獨立 SA，等下用 IRSA 綁 ECR 權限
+serviceAccount:
+  create: true
+  name: argocd-image-updater
+  annotations: {
+    IRSA : "eks.amazonaws.com/role-arn=arn:aws:iam::085980781371:role/eks-argocd-image-updater-irsa" 
+  }  
+
+# 日誌
+logLevel: info
+
+# 指向 Argo CD（用 cluster 內部位址）
+config:
+  argocd:
+    serverAddress: "argocd-server:80"  # 叢內服務名稱
+    insecure: false                     # 叢內可關閉 TLS；若對外請改成 https + token
+  registries:
+    # 讓 Updater 支援 ECR（兩種做法擇一，建議 IRSA → 見下節）
+    - name: "aws-ecr"
+      # 不用寫死你的 registry 網域；ECR 由 AWS 驗證導出
+      # 使用 AWS 認證（IRSA 或環境變數），Updater 會自動拿 token
+      api_url: "https://aws"           # 區分這個 registry 條目
+      credentials: "aws"               # 重點：走 AWS 認證（非 dockerconfigjson）
+      default: true
+
+# （選）write-back 預設走 argocd 或 git；也能在 Application 註解裡覆寫
+application:
+  defaultUpdateStrategy: "latest"
+  defaultWriteBackMethod: "argocd"
+
+secret:
+  create: false
+  name: argocd-image-updater-ssh   # 告訴 chart 用這個 secret
+config:
+  git:
+    writeBackMethod: "git"
+    # （可選）自訂 commit 作者
+    commitAuthorName: "image-updater"
+    commitAuthorEmail: "image-updater@local"
