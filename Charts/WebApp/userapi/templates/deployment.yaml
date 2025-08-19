@@ -27,14 +27,12 @@ spec:
           env:
             {{- toYaml .Values.env | nindent 12 }}
           readinessProbe:
-            httpGet:
-              path: {{ .Values.probes.grpc.path }}
+            grpc:
               port: {{ .Values.probes.grpc.port }}
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
-            httpGet:
-              path: {{ .Values.probes.grpc.path }}
+            grpc:
               port: {{ .Values.probes.grpc.port }}
             initialDelaySeconds: 10
             periodSeconds: 20
