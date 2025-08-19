@@ -15,7 +15,7 @@ spec:
         # override namespace-specific env if needed
   destination:
     server: https://kubernetes.default.svc
-    namespace: apps
+    namespace: webapp
   syncPolicy:
     automated:
       prune: true

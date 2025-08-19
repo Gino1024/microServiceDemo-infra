@@ -1,46 +1,22 @@
-replicaCount: 2
-
-image:
-  repository: 085980781371.dkr.ecr.ap-east-2.amazonaws.com/apigateway
-  tag: "latest"          # 建議固定版本，配合 Argo CD Image Updater 再自動提 PR/版本
-  pullPolicy: IfNotPresent
-
-imagePullSecrets: []     # 例如: [{ name: ecr-secret }]
-
 nameOverride: ""
 fullnameOverride: ""
 
-serviceAccount:
-  create: true
-  name: ""               # 留空自動命名；或自行指定
-  annotations: {}        # 若用 IRSA: { eks.amazonaws.com/role-arn: arn:aws:iam::<acct>:role/<role-name> }
+image:
+  repository: 085980781371.dkr.ecr.ap-east-2.amazonaws.com/apigateway
+  tag: "latest"               # managed by Image Updater (semver)
+  pullPolicy: IfNotPresent
 
-podAnnotations: {}
-podLabels: {}
-
-podSecurityContext: {}
-securityContext: {}
+replicaCount: 2
 
 service:
   type: ClusterIP
   port: 8080
   targetPort: 8080
 
-ingress:
-  enabled: true
-  className: alb
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing   # 內網改 "internal"
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-    alb.ingress.kubernetes.io/healthcheck-path: /healthz
-    alb.ingress.kubernetes.io/success-codes: "200,301,302"
-  hosts:
-    - host: ""         # 若無特定網域，可留空用通配
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []               # 需要 HTTPS 時再設定（ACM + HTTPS Listener）
+# HTTP probes for REST endpoint
+probes:
+  path: /healthz
+  port: 8080
 
 resources:
   requests:
@@ -50,6 +26,8 @@ resources:
     cpu: "500m"
     memory: "512Mi"
 
+env: []  # e.g. [{ name: ASPNETCORE_ENVIRONMENT, value: Production }]
+
 autoscaling:
   enabled: true
   minReplicas: 2
@@ -57,33 +35,17 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
   # targetMemoryUtilizationPercentage: 80
 
-env:                     # 一般環境變數
-  - name: ASPNETCORE_URLS
-    value: "http://0.0.0.0:8080"
-  # - name: CONNECTION_STRING
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: apigateway-secrets
-  #       key: connectionString
-
-envFromConfigMap: true
-config:
-  LOG_LEVEL: "Information"
-  FEATURE_X_ENABLED: "false"
-
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
-  initialDelaySeconds: 10
-  periodSeconds: 10
-readinessProbe:
-  httpGet:
-    path: /healthz
-    port: 8080
-  initialDelaySeconds: 5
-  periodSeconds: 5
-
-nodeSelector: {}
-tolerations: []
-affinity: {}
+ingress:
+  enabled: true
+  className: alb    # set to "alb" for AWS LB Controller, or "nginx" for NGINX
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  alb:
+    scheme: internet-facing           # or "internet-facing"
+    listenPorts: '[{"HTTP":80}]'  # example; use HTTPS with certs in production
+    targetType: ip
+    healthcheckPath: /healthz
