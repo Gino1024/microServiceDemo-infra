@@ -3,7 +3,7 @@ fullnameOverride: ""
 
 image:
   repository: 085980781371.dkr.ecr.ap-east-2.amazonaws.com/apigateway
-  tag: "latest"               # managed by Image Updater (semver)
+  tag: "sha-ffc5b8be4d2c6731cee7361f10d46489b8856c40"               # managed by Image Updater (semver)
   pullPolicy: IfNotPresent
 
 replicaCount: 2
