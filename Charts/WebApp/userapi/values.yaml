@@ -17,6 +17,7 @@ service:
 # gRPC health probes (K8s >= 1.24)
 probes:
   grpc:
+    path: /
     port: 8080
     service: ""       # optional, defaults to container port
 
