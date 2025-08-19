@@ -1,0 +1,8 @@
+helm:
+  parameters:
+  - name: image.repository
+    value: 085980781371.dkr.ecr.ap-east-2.amazonaws.com/apigateway
+    forcestring: true
+  - name: image.tag
+    value: sha-f16aac2892ba4ad316ce7d2bb0d989d4cbb6595d
+    forcestring: true
