@@ -24,5 +24,7 @@ spec:
           ports:
             - containerPort: {{ .Values.service.targetPort }}
               name: grpc
+          env:
+            {{- toYaml .Values.env | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
