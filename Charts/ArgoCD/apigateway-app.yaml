@@ -31,7 +31,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Gino1024/microServiceDemo-infra.git
+    repoURL: git@github.com:Gino1024/microServiceDemo-infra.git
     targetRevision: main
     path: Charts/WebApp/apigateway
     helm:

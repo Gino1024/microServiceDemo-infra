@@ -7,4 +7,8 @@ data:
   ecr-login.sh: |
     #!/usr/bin/env sh
     set -e
-    echo "AWS:$(aws ecr get-login-password --region ap-east-2)"
+    : "${AWS_REGION:=ap-east-2}"
+    : "${HOME:=/home/aws}"
+    mkdir -p "$HOME" "$HOME/.aws" 2>/dev/null || true
+    pass="$(aws ecr get-login-password --region "$AWS_REGION" 2>/dev/null)"
+    printf 'AWS:%s\n' "$pass"
