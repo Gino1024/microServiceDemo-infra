@@ -3,18 +3,12 @@ kind: Application
 metadata:
   name: apigateway
   namespace: argocd
-  annotations:
-    # Image Updater (optional): update Helm values in Git by semver
-    argocd-image-updater.argoproj.io/image-list: apigw=123456789012.dkr.ecr.ap-east-2.amazonaws.com/apigateway:~1
-    argocd-image-updater.argoproj.io/apigw.helm.image-name: image.repository
-    argocd-image-updater.argoproj.io/apigw.helm.image-tag: image.tag
-    argocd-image-updater.argoproj.io/write-back-method: git
 spec:
   project: default
   source:
     repoURL: https://github.com/Gino1024/microServiceDemo-infra.git
     targetRevision: main
-    path: apps/apigateway
+    path: Charts/WebApp/apigateway
     helm:
       releaseName: apigateway
       values: |
@@ -28,3 +22,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      
