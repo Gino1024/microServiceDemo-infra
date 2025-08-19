@@ -14,9 +14,6 @@ config:
   argocd:
     serverAddress: "argocd-server:80"
     insecure: true
-    authTokenSecret:
-      name: argocd-image-updater-token   # 這個 Secret 需含 'token'
-      key: token
   registries:
     # 讓 Updater 支援 ECR（兩種做法擇一，建議 IRSA → 見下節）
     - name: "aws-ecr"
