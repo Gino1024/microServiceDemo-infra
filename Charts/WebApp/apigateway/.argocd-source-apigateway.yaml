@@ -4,5 +4,5 @@ helm:
     value: 085980781371.dkr.ecr.ap-east-2.amazonaws.com/apigateway
     forcestring: true
   - name: image.tag
-    value: sha-faf70245972dd10af2598480f25f8a5cae7edfd0
+    value: sha-ff05ff8cc96386760d267f7c1aff5f00a9c8d98c
     forcestring: true
